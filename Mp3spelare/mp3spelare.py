@@ -1,18 +1,18 @@
 from playsound import playsound
 from tkinter import *
 import tkinter as tk
-from PIL import Image, ImageTk
+
 
 #Function to play song of your choice (will change to a button)
 def play_song():
-    playsound(songchoice)
+    playsound("C:/Users/zackarias.edlundsve/Music/Death Grips - Exmilitary - 2 - Guillotinelowbit.mp3")
 
 
 
 #Function to choose song (will change to an entry box)
-#def choose_song():#
-   # global songchoice 
-    #songchoice = input(str("Write path to song you would like to play (this player sucks so the file has to be 32kHz or lower bitrate to play) "))
+#def choose_song():
+ #   global songchoice 
+  #  songchoice = input(str("Write path to song you would like to play (this player sucks so the file has to be 32kHz or lower bitrate to play) "))
 
 
 
@@ -21,14 +21,16 @@ window = Tk()
 window.title("ZAmp")
 window.geometry('350x550')
 
+play_button = Button(window, text="Play", command=play_song)
+play_button.pack()
+
+
 
 canvas1 = tk.Canvas(window, width = 350, height = 550)
 canvas1.pack()
 
 songchoice = tk.Entry(window)
 canvas1.create_window(200, 140, window=songchoice)
-
-play_button = tk.Button(window, text="Play", width=50, height=50, command=playsound)
 
 
 #Main while loop
@@ -44,7 +46,7 @@ while 1 > 0:
         print("Choose 1 or 2 please.")
         play = input(str("What do you want to do? 1. Play 2. Exit")) 
 
-window.mainloop()
+window.mainaloop()
 
 
 
