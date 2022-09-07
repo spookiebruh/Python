@@ -25,7 +25,8 @@ def add_song():
     #Insert file into song list
     song_list.insert(END, song)
 
-playstate = 0
+playstate = False
+pausestate = False
 
 #Play song
 def play():
@@ -33,7 +34,7 @@ def play():
     song = f'C:/Users/zackarias.edlundsve/Music/{song}.mp3'
     mixer.music.load(song)
     mixer.music.play(loops=0)
-    playstate = 1
+    playstate = True
 
 #Stop current song
 def stop():
@@ -43,13 +44,12 @@ def stop():
 #Pause current song
 def pause():
     global pausestate
-    pausestate = 0
-    if pausestate == 0:
+    if pausestate == False:
+        pausestate = True
         mixer.music.pause()
-        pausestate = 1
-    elif pausestate == 1:
+    else:
+        pausestate = False
         mixer.music.unpause()
-        pausestate = 0
 
 #Show time of song
 def get_song_time():
