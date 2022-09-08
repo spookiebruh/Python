@@ -13,6 +13,8 @@ window.geometry("350x550")
 
 mixer.init()
 
+
+
 #Function to add song
 def add_song():
     song = filedialog.askopenfilename(initialdir='C:/Users/zackarias.edlundsve/Music', title="Choose song", filetypes=(("mp3 Files", "*.mp3"), ("wav Files", "*.wav"), ))
@@ -27,6 +29,7 @@ def add_song():
 
 playstate = False
 pausestate = False
+
 
 #Play song
 def play():
@@ -47,9 +50,39 @@ def pause():
     if pausestate == False:
         pausestate = True
         mixer.music.pause()
+        
     else:
         pausestate = False
         mixer.music.unpause()
+        
+        
+
+def playNext():
+    nextSong = song_list.curselection()
+    nextSong = nextSong[0] + 1
+    nextSongName = song_list.get(nextSong)
+    nextSongName = f'C:/Users/zackarias.edlundsve/Music/{nextSongName}.mp3'
+
+    mixer.music.load(nextSongName)
+    mixer.music.play()
+
+    song_list.select_clear(0, 'end')
+    song_list.activate(nextSong)
+    song_list.select_set(nextSong)
+
+def playPrev():
+    prevSong = song_list.curselection()
+    prevSong = prevSong[0] - 1
+    prevSongName = song_list.get(prevSong)
+    prevSongName = f'C:/Users/zackarias.edlundsve/Music/{prevSongName}.mp3'
+
+    mixer.music.load(prevSongName)
+    mixer.music.play()
+
+    song_list.select_clear(0, 'end')
+    song_list.activate(prevSong)
+    song_list.select_set(prevSong)
+
 
 #Show time of song
 def get_song_time():
@@ -71,8 +104,8 @@ controls_frame.pack()
 
 
 #Create buttons for player
-next_button = Button(controls_frame, text="Next")
-prev_button = Button(controls_frame,text="Prev")
+next_button = Button(controls_frame, text="Next", command=playNext)
+prev_button = Button(controls_frame,text="Prev", command = playPrev)
 play_button = Button(controls_frame,text="Play", command=play)
 pause_button = Button(controls_frame,text="Pause", command=pause)
 stop_button = Button(controls_frame,text="Stop", command=stop)
