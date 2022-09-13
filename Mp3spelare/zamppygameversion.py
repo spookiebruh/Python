@@ -15,28 +15,27 @@ window.geometry("350x550")
 
 mixer.init()
 
+playlist = [] #New list to store paths instead of names to load songs from.
+root_path = "C:/Users/zackarias.edlundsve/Music/"
 #Function to add song
 def add_song():
-    global song_name
     global song
-    song = filedialog.askopenfilename( title="Choose song", filetypes=(("mp3 Files", "*.mp3"), ("wav Files", "*.wav"), ))
-#initialdir='C:/Users/zackarias.edlundsve/Music',
-    #Remove file path info and .mp3/.wav
-    song_name = os.path.basename(song)
 
-    #Insert file into song list
-    song_list.insert(END, song_name)
+    song = filedialog.askopenfilename(title="Choose song", filetypes=((".mp3", "*.mp3"), (".wav", "*.wav"), ))
+
+    song = song.replace(root_path, "")
+    song_list.insert(END, song)
 
 
 #Function to add multiple songs to the player
-def add_multiple_songs():
-    global song_name
-    songs = filedialog.askopenfilenames(initialdir='C:/Users/zackarias.edlundsve/Music', title="Choose songs", filetypes=(("mp3 Files", "*.mp3"), ("wav Files", "*.wav"), ))
+def add_multiple():
+    global songs
+    global song
+
+    songs = filedialog.askopenfilenames(title="Choose songs", filetypes=((".mp3", "*.mp3"), (".wav", "*.wav"), ))
     for song in songs:
-        song_name = os.path.basename(song)
-
-        song_list.insert(END, song_name)
-
+        song = song.replace(root_path, "")
+        song_list.insert(END, song)
 
 #Function that removes selected song
 def remove_song():
@@ -55,7 +54,7 @@ pausestate = False
 #Play song
 def play():
     song = song_list.get(ACTIVE)
-    song = f'C:/Users/zackarias.edlundsve/Music/{song}.mp3'
+    song = f"C:/Users/zackarias.edlundsve/Music/{song}"
     mixer.music.load(song)
     mixer.music.play(loops=0)
 
@@ -83,7 +82,7 @@ def playNext():
     nextSong = song_list.curselection()
     nextSong = nextSong[0] + 1
     nextSongName = song_list.get(nextSong)
-    nextSongName = f'C:/Users/zackarias.edlundsve/Music/{nextSongName}.mp3'
+    nextSongName = f'C:/Users/zackarias.edlundsve/Music/{nextSongName}'
 
     mixer.music.load(nextSongName)
     mixer.music.play()
@@ -114,18 +113,19 @@ def get_song_time():
     song_time_converted = time.strftime("%H:%M:%S", time.gmtime(song_time))
     information_bar.config(text=song_time_converted)
     
-    song_data = os.path.splitext(song_name)
+    song_data = os.path.splitext(song)
     
     if song_data[1] == ".mp3":
         pass
     elif song_data[1] ==".wav":
         a = mixer.music(song)
         song_length = a.get_length()
+        song_length_converted = time.strftime("%H, %M, %S", time.gmtime(song_length))
     else:
         pass
 
     information_bar.config(text="/")
-    information_bar.config(text=song_length)
+   # information_bar.config(text=song_length_converted)
 
     information_bar.after(1000, get_song_time)
     
@@ -181,7 +181,7 @@ window.config(menu=top_menu)
 menu_addSong = Menu(top_menu)
 top_menu.add_cascade(label="Add song", menu=menu_addSong)
 menu_addSong.add_command(label="Add one song to playlist", command=add_song)
-menu_addSong.add_command(label="Add multiple songs to playlist", command=add_multiple_songs)
+menu_addSong.add_command(label="Add multiple songs to playlist", command=add_multiple)
 
 
 #Menu to remove song
