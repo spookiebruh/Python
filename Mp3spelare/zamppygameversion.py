@@ -1,11 +1,12 @@
 from os import remove
+import os
 from tkinter import *
 import tkinter as tk
 from tkinter import filedialog
 from webbrowser import get
 from pygame import mixer
 import time
-
+from mutagen.mp3 import MP3
             
 #Creates window
 window = Tk()
@@ -14,32 +15,27 @@ window.geometry("350x550")
 
 mixer.init()
 
-
-
 #Function to add song
 def add_song():
-    song = filedialog.askopenfilename(initialdir='C:/Users/zackarias.edlundsve/Music', title="Choose song", filetypes=(("mp3 Files", "*.mp3"), ("wav Files", "*.wav"), ))
-
+    global song_name
+    global song
+    song = filedialog.askopenfilename( title="Choose song", filetypes=(("mp3 Files", "*.mp3"), ("wav Files", "*.wav"), ))
+#initialdir='C:/Users/zackarias.edlundsve/Music',
     #Remove file path info and .mp3/.wav
-    song = song.replace("C:/Users/zackarias.edlundsve/Music/", "")
-    song = song.replace(".mp3", "")
-    song = song.replace(".wav", "")
+    song_name = os.path.basename(song)
 
     #Insert file into song list
-    song_list.insert(END, song)
+    song_list.insert(END, song_name)
+
 
 #Function to add multiple songs to the player
- 
 def add_multiple_songs():
+    global song_name
     songs = filedialog.askopenfilenames(initialdir='C:/Users/zackarias.edlundsve/Music', title="Choose songs", filetypes=(("mp3 Files", "*.mp3"), ("wav Files", "*.wav"), ))
-
     for song in songs:
-        song = song.replace("C:/Users/zackarias.edlundsve/Music/", "")
-        song = song.replace(".mp3", "")
-        song = song.replace(".wav", "")
+        song_name = os.path.basename(song)
 
-        song_list.insert(END, song)
-
+        song_list.insert(END, song_name)
 
 
 #Function that removes selected song
@@ -53,9 +49,8 @@ def remove_all():
 
     mixer.music.stop()
 
-playstate = False
-pausestate = False
 
+pausestate = False
 
 #Play song
 def play():
@@ -66,7 +61,6 @@ def play():
 
     get_song_time()
         
-
 
 #Stop current song
 def stop():
@@ -84,7 +78,7 @@ def pause():
         mixer.music.unpause()
         
         
-
+#Skip to next song in list
 def playNext():
     nextSong = song_list.curselection()
     nextSong = nextSong[0] + 1
@@ -98,6 +92,7 @@ def playNext():
     song_list.activate(nextSong)
     song_list.select_set(nextSong)
 
+#Skip to previous song in list
 def playPrev():
     prevSong = song_list.curselection()
     prevSong = prevSong[0] - 1
@@ -115,11 +110,23 @@ def playPrev():
 #Show time of song
 def get_song_time():
 
-
     song_time = mixer.music.get_pos() /1000
     song_time_converted = time.strftime("%H:%M:%S", time.gmtime(song_time))
     information_bar.config(text=song_time_converted)
     
+    song_data = os.path.splitext(song_name)
+    
+    if song_data[1] == ".mp3":
+        pass
+    elif song_data[1] ==".wav":
+        a = mixer.music(song)
+        song_length = a.get_length()
+    else:
+        pass
+
+    information_bar.config(text="/")
+    information_bar.config(text=song_length)
+
     information_bar.after(1000, get_song_time)
     
 
@@ -144,12 +151,15 @@ play_button = Button(controls_frame,text="Play", command=play)
 pause_button = Button(controls_frame,text="Pause", command=pause)
 stop_button = Button(controls_frame,text="Stop", command=stop)
 
+#Put buttons in grid
 prev_button.grid(row=0, column=0)
 next_button.grid(row=0, column=1)
 play_button.grid(row=0, column=2)
 pause_button.grid(row=0, column=3)
 stop_button.grid(row=0, column=4)
 
+
+#Configure grid to scale with window (doesn't work)
 window.grid_columnconfigure(0,weight=1)
 window.grid_columnconfigure(1,weight=1)
 window.grid_columnconfigure(2,weight=1)
