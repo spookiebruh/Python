@@ -3,10 +3,12 @@ import os
 from tkinter import *
 import tkinter as tk
 from tkinter import filedialog
+from tkinter import messagebox
 from webbrowser import get
 from pygame import mixer
 import time
 from mutagen.mp3 import MP3
+import tkinter.ttk as ttk
             
 #Creates window
 window = Tk()
@@ -35,6 +37,7 @@ def add_multiple():
     songs = filedialog.askopenfilenames(title="Choose songs", filetypes=((".mp3", "*.mp3"), (".wav", "*.wav"), ))
     for song in songs:
         song = song.replace(root_path, "")
+        mixer.music.queue(f"C:/Users/zackarias.edlundsve/Music/{song}")
         song_list.insert(END, song)
 
 #Function that removes selected song
@@ -75,6 +78,7 @@ def pause():
     else:
         pausestate = False
         mixer.music.unpause()
+        get_song_time()
         
         
 #Skip to next song in list
@@ -91,12 +95,15 @@ def playNext():
     song_list.activate(nextSong)
     song_list.select_set(nextSong)
 
+    if not song_list:
+        messagebox.showerror("No more songs")
+
 #Skip to previous song in list
 def playPrev():
     prevSong = song_list.curselection()
     prevSong = prevSong[0] - 1
     prevSongName = song_list.get(prevSong)
-    prevSongName = f'C:/Users/zackarias.edlundsve/Music/{prevSongName}.mp3'
+    prevSongName = f'C:/Users/zackarias.edlundsve/Music/{prevSongName}'
 
     mixer.music.load(prevSongName)
     mixer.music.play()
@@ -111,24 +118,41 @@ def get_song_time():
 
     song_time = mixer.music.get_pos() /1000
     song_time_converted = time.strftime("%H:%M:%S", time.gmtime(song_time))
-    information_bar.config(text=song_time_converted)
-    
-    song_data = os.path.splitext(song)
-    
-    if song_data[1] == ".mp3":
-        pass
-    elif song_data[1] ==".wav":
-        a = mixer.music(song)
-        song_length = a.get_length()
-        song_length_converted = time.strftime("%H, %M, %S", time.gmtime(song_length))
-    else:
-        pass
 
-    information_bar.config(text="/")
+    #Grab song from the list, load it using mutagen lib.
+    cur_song = song_list.curselection()
+    song = song_list.get(cur_song)
+    song = f'C:/Users/zackarias.edlundsve/Music/{song}'
+    song_mutagen = MP3(song)
+    song_length = song_mutagen.info.length
+    converted_song_length = time.strftime("%H:%M:%S", time.gmtime(song_length))
+
+    information_bar.config(text=f"{song_time_converted}/{converted_song_length}")
+       
    # information_bar.config(text=song_length_converted)
 
     information_bar.after(1000, get_song_time)
+
+def songBar(x):
+    progress_label.config(text=song_progress_bar.get())
+
+
+#vol = 0.5
+#mixer.music.set_volume(vol)
+#def volume_up():
+#    global vol
+#    vol =+ 0.1
     
+    
+#inactive_ticks = 0   
+
+#if not mixer.get_busy():
+#    inactive_ticks += 1
+
+#    if inactive_ticks == 100:
+#        # Play the next song
+#        inactive_ticks = 0
+#        playNext()
 
 
 #Song list
@@ -150,6 +174,7 @@ next_button = Button(controls_frame, text="Next", command=playNext)
 play_button = Button(controls_frame,text="Play", command=play)
 pause_button = Button(controls_frame,text="Pause", command=pause)
 stop_button = Button(controls_frame,text="Stop", command=stop)
+#volup_button = Button(controls_frame,text="+", command=volume_up)
 
 #Put buttons in grid
 prev_button.grid(row=0, column=0)
@@ -157,7 +182,7 @@ next_button.grid(row=0, column=1)
 play_button.grid(row=0, column=2)
 pause_button.grid(row=0, column=3)
 stop_button.grid(row=0, column=4)
-
+#volup_button.grid(row=0, column=5)
 
 #Configure grid to scale with window (doesn't work)
 window.grid_columnconfigure(0,weight=1)
@@ -190,11 +215,15 @@ top_menu.add_cascade(label="Remove song", menu=menu_removeSong)
 menu_removeSong.add_command(label="Remove song from list", command=remove_song)
 menu_removeSong.add_command(label="Remove all songs", command=remove_all)
 
+#Song slider
+song_progress_bar = ttk.Scale(window, from_=0, to=100, orient=HORIZONTAL, value=0, length=300, command=songBar)
+song_progress_bar.pack(pady=20)
+
+#Progressbar label
+progress_label=Label(window, text="0")
+progress_label.pack(pady=10)
+
+
+
 window.mainloop()
-
-
-
-
-
-
 
