@@ -5,6 +5,7 @@ import tkinter as tk
 from tkinter import filedialog
 from tkinter import messagebox
 from webbrowser import get
+from xml.sax import SAXNotSupportedException
 from pygame import mixer
 import time
 from mutagen.mp3 import MP3
@@ -44,18 +45,24 @@ def add_multiple():
 def remove_song():
     song = song_list.curselection()
     song_list.delete(song)
+    stop()
 
 #Function that removes all songs 
 def remove_all():
     song_list.delete(0, END)
-
-    mixer.music.stop()
-
+    stop()
 
 pausestate = False
 
 #Play song
 def play():
+    #Reset status and progress bar
+    song_progress_bar.config(value=0)
+    information_bar.config(text="")
+
+    global stopped
+    stopped = False
+
     song = song_list.get(ACTIVE)
     song = f"C:/Users/zackarias.edlundsve/Music/{song}"
     mixer.music.load(song)
@@ -63,13 +70,21 @@ def play():
 
     get_song_time()
 
-
         
-
+global stopped
+stopped = False
 #Stop current song
 def stop():
+    #reset bar and info
+    song_progress_bar.config(value=0)
+    information_bar.config(text="")
+
     mixer.music.stop()
     song_list.selection_clear(ACTIVE)
+    
+    global stopped 
+    stopped = True
+    
 
 #Pause current song
 def pause():
@@ -85,6 +100,10 @@ def pause():
         
 #Skip to next song in list
 def playNext():
+    #Reset status and progress bar
+    song_progress_bar.config(value=0)
+    information_bar.config(text="")
+
     nextSong = song_list.curselection()
     nextSong = nextSong[0] + 1
     nextSongName = song_list.get(nextSong)
@@ -102,6 +121,10 @@ def playNext():
 
 #Skip to previous song in list
 def playPrev():
+    #Reset status and progress bar
+    song_progress_bar.config(value=0)
+    information_bar.config(text="")
+
     prevSong = song_list.curselection()
     prevSong = prevSong[0] - 1
     prevSongName = song_list.get(prevSong)
@@ -117,10 +140,11 @@ def playPrev():
 
 #Show time of song
 def get_song_time():
-
+    if stopped:
+        return
     song_time = mixer.music.get_pos() /1000
 
-    progress_label.config(text=f"Slider: {int(song_progress_bar.get())} and Song Pos: {int(song_time)}")
+    #progress_label.config(text=f"Slider: {int(song_progress_bar.get())} and Song Pos: {int(song_time)}")
 
     song_time_converted = time.strftime("%H:%M:%S", time.gmtime(song_time))
 
@@ -138,14 +162,21 @@ def get_song_time():
     converted_song_length = time.strftime("%H:%M:%S", time.gmtime(song_length))
 
     
-    if int(song_progress_bar.get()) == song_time:
-        #bar hasn't been moved
-        song_time =+ 1
+    if int(song_progress_bar.get()) == int(song_length):
+        information_bar.config(text=f"{song_time_converted}/{converted_song_length}")
+       
+    elif int(song_progress_bar.get()) == int(song_time):
+        #song_time =+ 1
 
         bar_position = int(song_length)
         song_progress_bar.config(to=bar_position, value=int(song_time))
+         
+    elif pausestate == True:
+        pass
+    
+
     else:
-        song_time =+ 1
+        #song_time =+ 1
 
         bar_position = int(song_length)
         song_progress_bar.config(to=bar_position, value=int(song_progress_bar.get()))
@@ -264,8 +295,8 @@ song_progress_bar = ttk.Scale(window, from_=0, to=100, orient=HORIZONTAL, value=
 song_progress_bar.pack(pady=20)
 
 #Progressbar label
-progress_label=Label(window, text="0")
-progress_label.pack(pady=10)
+#progress_label=Label(window, text="0")
+#progress_label.pack(pady=10)
 
 
 
