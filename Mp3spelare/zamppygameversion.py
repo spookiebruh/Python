@@ -62,6 +62,8 @@ def play():
     mixer.music.play(loops=0)
 
     get_song_time()
+
+
         
 
 #Stop current song
@@ -117,24 +119,66 @@ def playPrev():
 def get_song_time():
 
     song_time = mixer.music.get_pos() /1000
+
+    progress_label.config(text=f"Slider: {int(song_progress_bar.get())} and Song Pos: {int(song_time)}")
+
     song_time_converted = time.strftime("%H:%M:%S", time.gmtime(song_time))
+
+
 
     #Grab song from the list, load it using mutagen lib.
     cur_song = song_list.curselection()
     song = song_list.get(cur_song)
     song = f'C:/Users/zackarias.edlundsve/Music/{song}'
     song_mutagen = MP3(song)
+
+    #Loads song info through mutagen
+    global song_length
     song_length = song_mutagen.info.length
     converted_song_length = time.strftime("%H:%M:%S", time.gmtime(song_length))
 
-    information_bar.config(text=f"{song_time_converted}/{converted_song_length}")
+    
+    if int(song_progress_bar.get()) == song_time:
+        #bar hasn't been moved
+        song_time =+ 1
+
+        bar_position = int(song_length)
+        song_progress_bar.config(to=bar_position, value=int(song_time))
+    else:
+        song_time =+ 1
+
+        bar_position = int(song_length)
+        song_progress_bar.config(to=bar_position, value=int(song_progress_bar.get()))
+
+        song_time_converted = time.strftime("%H:%M:%S", time.gmtime(int(song_progress_bar.get())))
+
+        information_bar.config(text=f"{song_time_converted}/{converted_song_length}")
+
+        song_continue = int(song_progress_bar.get()) + 1
+        song_progress_bar.config(value=song_continue)
+        
+
+
+    #Converts song length to my time format of 
+
+    #information_bar.config(text=f"{song_time_converted}/{converted_song_length}")
        
-   # information_bar.config(text=song_length_converted)
+    #information_bar.config(text=song_length_converted)
+
+    #song_progress_bar.config(value=int(song_time))
+
+    #Update the bar to be on the postition of the song
+
 
     information_bar.after(1000, get_song_time)
 
 def songBar(x):
-    progress_label.config(text=song_progress_bar.get())
+    #progress_label.config(text=f'{int(song_progress_bar.get())}/{converted_song_length}')
+     
+    song = song_list.get(ACTIVE)
+    song = f"C:/Users/zackarias.edlundsve/Music/{song}"
+    mixer.music.load(song)
+    mixer.music.play(loops=0, start=int(song_progress_bar.get()))
 
 
 #vol = 0.5
