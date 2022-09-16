@@ -67,6 +67,9 @@ def play():
     song = f"C:/Users/zackarias.edlundsve/Music/{song}"
     mixer.music.load(song)
     mixer.music.play(loops=0)
+    
+    
+
 
     get_song_time()
 
@@ -221,13 +224,13 @@ def songBar(x):
     
 #inactive_ticks = 0   
 
-#if not mixer.get_busy():
-#    inactive_ticks += 1
 
-#    if inactive_ticks == 100:
-#        # Play the next song
-#        inactive_ticks = 0
-#        playNext()
+    #inactive_ticks += 1
+
+    #if inactive_ticks == 100:
+        # Play the next song
+        #inactive_ticks = 0
+    
 
 
 #Song list
